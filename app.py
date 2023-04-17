@@ -104,6 +104,11 @@ def create_app(db_url=None):
     # use flask_migrate    
     # with app.app_context(): 
     #     db.create_all()
+    
+    @app.route("/")
+    def home_page():
+        #return html
+        return "<h1>Hello World</h1>"
 
     api.register_blueprint(ItemBlueprint)
     api.register_blueprint(StoreBlueprint)
