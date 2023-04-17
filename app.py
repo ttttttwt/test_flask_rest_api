@@ -109,8 +109,10 @@ def create_app(db_url=None):
     def home_page():
         #return html
         return """
+    <div style="text-align: center;">
     <h1>This is home page</h1>
-    <a href="/api">API</a>
+    <h2><a href="/api">API</a></h2>
+    </div>
     """
 
     api.register_blueprint(ItemBlueprint)
