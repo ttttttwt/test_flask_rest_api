@@ -18,12 +18,11 @@ blp = Blueprint("Users", "users", description="Operations on users")
 
 def send_simple_message(to, subject, body):
     domain = os.getenv("MAILGUN_DOMAIN")
-    api_key = os.getenv("MAILGUN_API_KEY")
     return requests.post(
         f"https://api.mailgun.net/v3/{domain}/messages",
-        auth=("api", api_key),
+        auth=("api", str(os.getenv("MAILGUN_API_KEY"))),
         data={
-            "from": f"hello101 <mailgun@{domain}>",
+            "from": f"test <mailgun@{domain}>",
             "to": [to],
             "subject": subject,
             "text": body,
@@ -48,13 +47,6 @@ class UserRegister(MethodView):
         send_simple_message(user_data["email"], "Welcome to the store", "You have successfully registered.")
 
         return {"message": "User created successfully."}, 201
-    
-@blp.route("/get-all-users")
-class GetAllUsers(MethodView):
-    # @jwt_required()
-    def get(self):
-        users = UserModel.query.all()
-        return [user.json() for user in users], 200
     
 @blp.route("/login")
 class UserLogin(MethodView):
