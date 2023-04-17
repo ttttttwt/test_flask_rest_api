@@ -108,7 +108,10 @@ def create_app(db_url=None):
     @app.route("/")
     def home_page():
         #return html
-        return "<h1>Hello World</h1>"
+        return """
+    <h1>This is home page</h1>
+    <a href="/api">API</a>
+    """
 
     api.register_blueprint(ItemBlueprint)
     api.register_blueprint(StoreBlueprint)
