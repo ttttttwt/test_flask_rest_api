@@ -12,22 +12,17 @@ from models import UserModel
 from schemas import UserSchema, UserRegisterSchema
 from blocklist import BLOCKLIST
 
+import redis
+from rq import Queue
+from tasks import send_user_registration_email
+
 
 blp = Blueprint("Users", "users", description="Operations on users")
 
-
-def send_simple_message(to, subject, body):
-    domain = os.getenv("MAILGUN_DOMAIN")
-    return requests.post(
-        f"https://api.mailgun.net/v3/{domain}/messages",
-        auth=("api", str(os.getenv("MAILGUN_API_KEY"))),
-        data={
-            "from": f"test <mailgun@{domain}>",
-            "to": [to],
-            "subject": subject,
-            "text": body,
-        },
-    )
+connection = redis.from_url(
+    str(os.getenv("REDIS_URL"))
+)  # Get this from Render.com or run in Docker
+queue = Queue("emails", connection=connection)
 
 @blp.route("/register")
 class UserRegister(MethodView):
@@ -44,8 +39,8 @@ class UserRegister(MethodView):
         db.session.add(user)
         db.session.commit()
         
-        send_simple_message(user_data["email"], "Welcome to the store", "You have successfully registered.")
-
+        queue.enqueue(send_user_registration_email, user.email, user.username)
+        
         return {"message": "User created successfully."}, 201
     
 @blp.route("/login")
